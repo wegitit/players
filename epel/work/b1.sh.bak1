@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# import EPEL gpg key
+rpm --import https://fedoraproject.org/static/0608B895.txt
+
+# was EPEL gpg key installed
+rpm -qa gpg* | grep -i 0608B895
+
+if rpm -qa gpg* | grep -i 0608B895 >/dev/null; then
+  echo "present"
+else
+  echo "absent"
+fi
+
+
+
+result="$(rpm -qa gpg* | grep -i 0608B895)"
+if [ -n "$result" ]; then
+  echo "present!"
+else
+  echo "absent!"
+fi
+
+
+# install Repo
+# wget http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+# rpm -ivh epel-release-6-8.noarch.rpm
+

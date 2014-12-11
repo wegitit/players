@@ -1,0 +1,26 @@
+Set up ansible user and group with ssh key and sudo
+
+PLAYER and LOCAL
+
+add system group (-r):
+groupadd -r maint
+
+add system user (-r, i.e. no home, no mailbox) to groups pri:maint & sec:wheel:
+useradd -r -g maint -G wheel ansible
+
+ansible public key:
+  create key folder
+  set key folder permissions
+  receive key
+  set key file permissions
+ 
+(visudo-simulaneaous edit & bit settings protector, ) enable option: "allow [users] in group wheel to run all commands" with
+  uncomment of: %wheel ALL=(ALL) ALL
+           i.e. user, from terminal (acting as), allowed commands
+  # need to look at this - consider sudo only so as to keep root pass private
+  # guidepost: serverfault.com disable su on machine
+  # per: linuxpoison.blogspot.com/2008/12/configuring-sudo-and-adding-users-to.html
+  # ... "allows [user] to use the su command to grant themselves permanent root privileges thereby bypassing the command logging features of sudo."
+
+
+

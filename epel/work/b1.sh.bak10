@@ -1,0 +1,89 @@
+#!/bin/bash
+
+
+#### Tidbits
+
+createLogName() {
+  # read the basename through a symlink - stackoverflow.com/questions/192319/how-do-i-know-the-script-file-name-in-a-bash-script
+  # using basename may not be ideal here, dk
+  me="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
+  echo $me'.log'
+}
+
+scriptLog=$(createLogName)
+
+
+
+#### key section
+
+installEpelKey() {
+  # Install EPEL gpg key
+  # Do not use shorthand version, i.e. -i
+  rpm --import https://fedoraproject.org/static/0608B895.txt &> $scriptLog
+}
+
+isEpelKeyInstalled() {
+  local epelKeyExists="$(rpm -qa gpg* | grep -i 0608B895)"
+  
+  [[ $epelKeyExists > "" ]] && r=1 || r=0
+  echo $r
+}
+
+
+
+#### repo section
+
+installRepo() {
+ #  rpm -i -K http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm &> /dev/null
+ # rpm -i -K http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm &> /dev/null 
+ rpm -i -K http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm &> $scriptLog
+}
+
+isEpelRepoInstalled() {
+  local epelRepoFile="/etc/yum.repos.d/epel.repo"
+
+  # -f = true when file exists & is not a dir
+  [[ -f $epelRepoFile ]] && r=1 || r=0
+  echo $r
+}
+
+
+#### main 
+
+
+# If the repo key is not present, get it
+  if [[ $(isEpelKeyInstalled) -eq 0 ]]; then
+  installEpelKey
+fi
+
+# The repo key was not installed? 1) echo the key & repo status, 2) exit
+if [[ $(isEpelKeyInstalled) -eq 0 ]]; then
+ echo "Epel repo key not installed"
+  if [[ $(isEpelRepoInstalled) -eq 0 ]]; then
+# [[ $(f) -eq 1 ]] && a="$c" || a="$d"
+    echo "Epel repo not installed"
+  else
+    echo "Epel repo previously installed"
+  fi 
+  exit
+fi
+
+echo "Epel repo key installed"
+
+
+# The repo key was installed, install the repo
+
+installRepo
+
+if [[ $(isEpelRepoInstalled) -eq 0 ]]; then
+# [[ $(f) -eq 1 ]] && a="$c" || a="$d"
+  echo "Epel repo not installed-2" 
+else
+  echo "Epel repo installed"
+fi
+
+# to remove key
+# first -qa it (or similar) to see if it exists (qa prints nothing, q prints package x is not installed
+# -e will print error: package x is not installed
+# rpm -e gpg-pubkey-0608b895-4bd22942
+#         package epel-release-6-8.noarch is already installed

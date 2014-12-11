@@ -1,0 +1,9 @@
+# get git
+yum install git
+
+# set git name - for commit labeling
+git config --global user.name "clay"
+
+# set git command email address - should match the address in the account|email settings
+git config --global user.email "theClayTyler@gmail.com"
+
